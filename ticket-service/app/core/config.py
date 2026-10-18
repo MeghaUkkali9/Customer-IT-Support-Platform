@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     db_max_overflow: int = 20
     db_pool_timeout: int = 30
     db_pool_recycle: int = 1800
+
+    # Must match auth-service, which signs the tokens
+    jwt_secret: str
+    jwt_algorithm: str = "HS256"
     
     model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
     

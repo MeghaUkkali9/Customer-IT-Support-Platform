@@ -16,5 +16,8 @@ class Ticket(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     is_resolved: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     priority: Mapped[str] = mapped_column(String(20), nullable=False, default=Priority.MEDIUM.value)
+    # User id from auth-service (no foreign key: users live in another service's database).
+    # Nullable only because tickets created before auth existed have no owner.
+    created_by: Mapped[str | None] = mapped_column(UUID(as_uuid=False), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
