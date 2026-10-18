@@ -9,9 +9,12 @@ class TicketRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
     
-    async def list(self, limit: int, offset:int)-> list[Ticket]:
+    async def list(self, limit: int, offset:int, created_by: Optional[str] = None)-> list[Ticket]:
+        query = select(Ticket)
+        if created_by is not None:
+            query = query.where(Ticket.created_by == created_by)
         result = await self.db.execute(
-            select(Ticket).order_by(Ticket.created_at.desc()).limit(limit).offset(offset)
+            query.order_by(Ticket.created_at.desc()).limit(limit).offset(offset)
         )
         
         return list(result.scalars().all())

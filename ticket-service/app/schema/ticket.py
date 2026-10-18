@@ -23,3 +23,4 @@ class TicketResponse(BaseModel):
     title: str
     description: str
     priority: Priority
+    created_by: str | None
