@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Header, Query, status
 
 from app.dependencies import get_ticket_service
 from app.schema.ticket import CreateTicketRequest, UpdateTicketRequest, TicketResponse
@@ -22,8 +22,12 @@ async def get_ticket(ticket_id: UUID, service: TicketService = Depends(get_ticke
 
 
 @router.post("", response_model=TicketResponse, status_code=status.HTTP_201_CREATED)
-async def create_ticket(payload: CreateTicketRequest, service: TicketService = Depends(get_ticket_service)):
-    return await service.create(payload)
+async def create_ticket(
+    payload: CreateTicketRequest,
+    idempotency_key: str | None = Header(None, min_length=1, max_length=255),  # "Idempotency-Key" header
+    service: TicketService = Depends(get_ticket_service),
+):
+    return await service.create(payload, idempotency_key)
 
 
 @router.patch("/{ticket_id}", response_model=TicketResponse)
