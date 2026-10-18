@@ -16,6 +16,7 @@ services:
     build: ./ticket-service
     environment:
       POSTGRE_SQL_URL: postgresql+psycopg://postgres:postgres@db:5432/tickets
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
     ports:
       - "8000:8000"
     # Apply migrations, then start the API
@@ -24,5 +25,32 @@ services:
       db:
         condition: service_healthy
 
+  # Each service owns its own database
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth
+    volumes:
+      - authdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 10
+
+  auth-service:
+    build: ./auth-service
+    environment:
+      POSTGRE_SQL_URL: postgresql+psycopg://postgres:postgres@auth-db:5432/auth
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+    ports:
+      - "8001:8000"
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  authdata:
