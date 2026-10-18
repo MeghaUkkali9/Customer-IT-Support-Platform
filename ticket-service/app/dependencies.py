@@ -6,7 +6,7 @@ from app.services.ticket_service import TicketService
 from app.repositories.ticket_repository import TicketRepository
 
 def get_db_repo(db: AsyncSession = Depends(get_db)) -> TicketRepository:
-    return TicketRepository()
+    return TicketRepository(db)
 
-def get_ticket_service(get_db_repo: TicketRepository = Depends(get_db_repo))-> TicketService:
-    return TicketService()
+def get_ticket_service(db_repo: TicketRepository = Depends(get_db_repo))-> TicketService:
+    return TicketService(db_repo)

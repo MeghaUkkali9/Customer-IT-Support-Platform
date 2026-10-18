@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
+
 from app.core.config import get_settings
 from contextlib import asynccontextmanager
 from app.api.router import router
