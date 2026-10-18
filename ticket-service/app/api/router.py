@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Query, status
 
 from app.dependencies import get_ticket_service
@@ -15,8 +17,8 @@ async def list_tickets(
     return await service.list(limit=limit, offset=offset)
 
 @router.get("/{ticket_id}", response_model=TicketResponse)
-async def get_ticket(ticket_id: str, service: TicketService = Depends(get_ticket_service)):
-    return await service.get(ticket_id)
+async def get_ticket(ticket_id: UUID, service: TicketService = Depends(get_ticket_service)):
+    return await service.get(str(ticket_id))
 
 
 @router.post("", response_model=TicketResponse, status_code=status.HTTP_201_CREATED)
@@ -25,10 +27,10 @@ async def create_ticket(payload: CreateTicketRequest, service: TicketService = D
 
 
 @router.patch("/{ticket_id}", response_model=TicketResponse)
-async def update_ticket(ticket_id: str, payload: UpdateTicketRequest, service: TicketService = Depends(get_ticket_service)):
-    return await service.update(ticket_id, payload)
+async def update_ticket(ticket_id: UUID, payload: UpdateTicketRequest, service: TicketService = Depends(get_ticket_service)):
+    return await service.update(str(ticket_id), payload)
 
 
 @router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_ticket(ticket_id: str, service: TicketService = Depends(get_ticket_service)):
-    await service.delete(ticket_id)
+async def delete_ticket(ticket_id: UUID, service: TicketService = Depends(get_ticket_service)):
+    await service.delete(str(ticket_id))

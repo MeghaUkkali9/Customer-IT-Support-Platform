@@ -2,7 +2,6 @@ from app.exceptions.ticket_exception import TicketNotFoundException
 from app.models.ticket_model import Ticket
 from app.repositories.ticket_repository import TicketRepository
 from app.schema.ticket import CreateTicketRequest, UpdateTicketRequest
-from typing import Optional
 
 class TicketService:
     def __init__(self, db_repo: TicketRepository):
@@ -11,11 +10,11 @@ class TicketService:
     async def list(self, limit: int, offset: int) -> list[Ticket]:
         return await self.db_repo.list(limit=limit, offset=offset)
 
-    async def get(self, ticket_id) -> Optional[Ticket]:
-        ticket = self.db_repo.get(ticket_id=ticket_id)
+    async def get(self, ticket_id: str) -> Ticket:
+        ticket = await self.db_repo.get(ticket_id=ticket_id)
         
         if ticket is None:
-            raise TicketNotFoundException(f"{ticket_id} not found")
+            raise TicketNotFoundException(ticket_id)
         
         return ticket
 
@@ -23,7 +22,7 @@ class TicketService:
         ticket = Ticket(
             title = payload.title,
             description = payload.description,
-            priority = payload.priority
+            priority = payload.priority.value
         )
         return await self.db_repo.create(ticket)
     
